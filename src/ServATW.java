@@ -11,7 +11,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         super();
         //TODO Auto-generated constructor stub
     }
-    
+    private String ServerName = "Atwater";
     private HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private HashMap<String, Integer> moviecapacity = new HashMap<>();
     private HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
@@ -92,7 +92,17 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     
     @Override
     public String getBookingSchedule(String CustomerID) throws RemoteException {
-        
+        if(!customer.containsKey(CustomerID))
+        {
+            return "No shows booked in "+ServerName;
+        }
+        Iterator it = (customer.get(CustomerID)).entrySet().iterator();
+        ArrayList<String> allbookedshows = new ArrayList<>();
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry) it.next();
+            allbookedshows.add(pair.getValue()+" tickets for "+ pair.getKey());
+            it.remove();
+        }
         return null;
     }
     

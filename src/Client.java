@@ -204,7 +204,10 @@ public class Client {
                             
                         }
                         break;
-                        case 2:
+                        case 2:{
+                            System.out.println(servatw.getBookingSchedule(ID));
+                        }
+                        break;
                         case 3:
                         case 4:{
                             break user;
