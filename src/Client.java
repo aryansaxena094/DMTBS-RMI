@@ -220,9 +220,7 @@ public class Client {
                         }
                         default:
                     }
-                }
-                
-                
+                }       
             }   
         }
         
