@@ -115,12 +115,12 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         int ticketsbookedbycustomer = moviesbookedbycustomer.getOrDefault(movieID,0);
         if(ticketsbookedbycustomer<Numberoftickets){
-            return "Tickets booked by the user are lesser than the entered amount, you have booked "+ticketsbookedbycustomer+" tickets";
+            return "Tickets booked by the user are lesser than the entered amount, you can book "+totaltickets+" tickets for this show";
         }
         ticketsbookedbycustomer = ticketsbookedbycustomer - Numberoftickets;
         moviesbookedbycustomer.put(movieID, ticketsbookedbycustomer);
         
-        (movies.get(movieName)).merge(movieName, Numberoftickets, Integer::sum);
+        (movies.get(movieName)).put(movieID, ((movies.get(movieName)).get(movieID)) - Numberoftickets);
         return Numberoftickets+" tickets has been cancelled for "+movieName+" with MovieID "+movieID;
     }
 }
