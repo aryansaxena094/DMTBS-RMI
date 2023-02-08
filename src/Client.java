@@ -75,6 +75,11 @@ public class Client {
                 }
             }
             user:while(true){
+
+                //variables (most used)
+                String movieID = "";
+                String movieName = "";
+
                 if(verification.equalsIgnoreCase("admin")){
                     adminmenu(ID);
                 }
@@ -91,8 +96,7 @@ public class Client {
                             //general variables
                             String whichadmin = ID.substring(0,3);
                             int bookingcapacity = 0;
-                            String movieID = "";
-                            String movieName = "";
+
                             while(true)
                             {
                                 System.out.println("Enter MovieID: ");
@@ -126,8 +130,7 @@ public class Client {
                             //deleting from the server
                             //general variables
                             String whichadmin = ID.substring(0,3);
-                            String movieID = "";
-                            String movieName = "";
+
                             while(true)
                             {
                                 System.out.println("Enter MovieID: ");
@@ -155,7 +158,7 @@ public class Client {
                         
                         case 3:{
                             System.out.println("Enter the Movie Name of which you wish to see the shows for: ");
-                            String movieName = sc.nextLine();
+                            movieName = sc.nextLine();
                             System.out.println("Atwater: ");
                             System.out.println("\n\r"+servatw.listMovieShows(movieName));
                             
@@ -192,8 +195,6 @@ public class Client {
                             //booking movie ticket
                             //variables
                             int ticketstobebooked = 0;
-                            String movieID = "";
-                            String movieName = "";
                             
                             System.out.println("Name of the Movie: ");
                             movieName = sc.nextLine();
@@ -212,8 +213,6 @@ public class Client {
                         break;
                         case 3:{
                             //CANCELLING THE MOVIE TICKET
-                            String movieID = "";
-                            String movieName = "";
                             int Numberoftickets = 0;
 
                             System.out.println("If you wish to cancel a movie ticket, please enter - ");
