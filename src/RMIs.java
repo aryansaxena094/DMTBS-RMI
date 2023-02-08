@@ -2,6 +2,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 interface RMIs extends Remote{
+    //Authentication
+    public String verifyID(String ID) throws RemoteException;
+    public String verifyMovieID(String movieID) throws RemoteException;
+    
     //Admin
     public String addMovieSlots(String movieID ,String movieName, int bookingcapacity) throws RemoteException;
     public String removeMovieSlots(String movieID ,String movieName) throws RemoteException;

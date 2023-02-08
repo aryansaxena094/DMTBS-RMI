@@ -7,18 +7,21 @@ import java.util.*;
 
 
 public class ServATW extends UnicastRemoteObject implements RMIs {
-    protected ServATW() throws RemoteException {
-        super();
-        //TODO Auto-generated constructor stub
-    }
     private String ServerName = "Atwater";
+    ArrayList<String> admin = new ArrayList<String>();
+
     private HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private HashMap<String, Integer> moviecapacity = new HashMap<>();
 
-
     private HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     private HashMap<String, Integer> moviesbookedbycustomer = new HashMap<>();
+    
     private int totaltickets;
+    
+    protected ServATW() throws RemoteException {
+        super();
+        admin.add("ATWA9499");
+    }
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
         Registry reg = LocateRegistry.createRegistry(5099);
@@ -29,7 +32,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     @Override
     public String addMovieSlots(String movieID, String movieName, int bookingcapacity) throws RemoteException {
         boolean movieexists = moviecapacity.containsKey(movieID);
-        moviecapacity.put(movieID, bookingcapacity);
+        moviecapacity.merge(movieID, bookingcapacity,Integer::sum);
         movies.put(movieName, moviecapacity);
         
         if(movieexists==true){
@@ -72,9 +75,8 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     @Override
     public String bookMovieTicket(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException{
         if(!movies.containsKey(movieName) && !moviecapacity.containsKey(movieID)){
-            return "Incorrect MovieID/MovieName!";
+            return "MovieID/MovieName does not exist!";
         }
-
         int totaltickets = (movies.get(movieName)).getOrDefault(movieID,Integer.MAX_VALUE);
         
         if(Numberoftickets>totaltickets){
@@ -88,7 +90,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         //updaing movies hashmap
         moviecapacity.put(movieID, totaltickets);
         movies.put(movieName, moviecapacity);
-        
+        ///
+        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
+        System.out.println("Hashmap with Customer Values: "+ customer.toString());
+        ///
         return Numberoftickets+ " Tickets have been booked to "+movieID+" show of "+movieName;
     }
     
@@ -122,5 +127,35 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         (movies.get(movieName)).put(movieID, ((movies.get(movieName)).get(movieID)) - Numberoftickets);
         return Numberoftickets+" tickets has been cancelled for "+movieName+" with MovieID "+movieID;
+    }
+
+
+
+
+
+
+    @Override
+    public String verifyID(String ID) throws RemoteException{
+
+        if(ID.length() < 8 || ID.charAt(3)!='A' &&  ID.charAt(3)!='C' && ID.charAt(3)!='a' && ID.charAt(3)!='c')
+        {
+            return "invalid";
+        }
+        
+        if(ID.charAt(3)=='A' || ID.charAt(3)=='a'){
+            //admincheck
+            if(admin.contains(ID)){
+                //checking if admin exists in db
+                return "admin";
+            }
+        }
+
+        return "customer";
+    }
+
+    @Override
+    public String verifyMovieID(String movieID) throws RemoteException{
+        // TODO Auto-generated method stub
+        return null;
     }
 }

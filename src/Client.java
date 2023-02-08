@@ -45,43 +45,45 @@ public class Client {
     public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException {
         intro();
         Scanner sc = new Scanner(System.in);
-        boolean admin = false;
         String ID = "";
-
         //Connecting to Servers
         RMIs servatw = (RMIs) Naming.lookup("rmi://localhost:5099/ATW");
         
         program:while(true){
+            String verification = "invalid";
             
-            loop: while(true){
+            while(verification.equalsIgnoreCase("invalid")){
                 System.out.println("Please Enter your ID: ");
                 ID = sc.nextLine();
-                if(ID.length() < 8 || ID.charAt(3)!='A' &&  ID.charAt(3)!='C' && ID.charAt(3)!='a' && ID.charAt(3)!='c')
+                
+                if(ID.length() > 3)
                 {
-                    System.out.println("\r\nPlease enter a valid ID \r\n");
+                    if(ID.substring(0,3).equalsIgnoreCase("ATW")){
+                        verification = servatw.verifyID(ID);
+                    }
+                    else if(ID.substring(0,2).equalsIgnoreCase("VER"))
+                    {
+
+                    }
+                    else if(ID.substring(0,2).equalsIgnoreCase("OUT")) {
+                        
+                    }
                 }
                 else
                 {
-                    break loop;
+                    verification = "invalid";
                 }
             }
             user:while(true){
-                if(ID.charAt(3)=='A' || ID.charAt(3)=='a'){
-                    System.out.println("\r\nHey Admin! \r\n");
+                if(verification.equalsIgnoreCase("admin")){
                     adminmenu(ID);
-                    admin = true;
-                    //Admin
                 }
-                else if(ID.charAt(3)=='C' || ID.charAt(3)=='c'){
-                    System.out.println("\r\nHey Customer! \r\n");
-                    admin = false;
+                else if(verification.equalsIgnoreCase("customer")){
                     customermenu(ID);
-                    //Customer
                 }
-                
                 int menuinp = Integer.parseInt(sc.nextLine());
                 
-                if(admin==true){
+                if(verification.equalsIgnoreCase("admin")){
                     //admin menu
                     switch(menuinp){
                         case 1:{
@@ -182,7 +184,7 @@ public class Client {
                         default: break;
                     }
                 }
-                else
+                else if(verification.equalsIgnoreCase("customer"))
                 {//customer menu
                     customermenu(ID);
                     switch(menuinp){
@@ -209,7 +211,21 @@ public class Client {
                         }
                         break;
                         case 3:{
+                            //CANCELLING THE MOVIE TICKET
+                            String movieID = "";
+                            String movieName = "";
+                            int Numberoftickets = 0;
 
+                            System.out.println("If you wish to cancel a movie ticket, please enter - ");
+
+                            System.out.println("Movie ID of the ticket booked: ");
+                            movieID = sc.nextLine();
+                            System.out.println("Name of the Movie booked");
+                            movieName = sc.nextLine();
+                            System.out.println("Number of tickets you wish to cancel");
+                            Numberoftickets = Integer.parseInt(sc.nextLine());
+                            
+                            System.out.println(servatw.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));                            
                         }
                         break;
                         case 4:{
