@@ -16,8 +16,8 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     private HashMap<String, Integer> moviecapacity = new HashMap<>();
 
 
-    private HashMap<String, HashMap<String[], Integer>> customer = new HashMap<>();
-    private HashMap<String[], Integer> moviesbookedbycustomer = new HashMap<>();
+    private HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
+    private HashMap<String, Integer> moviesbookedbycustomer = new HashMap<>();
     private int totaltickets;
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
@@ -82,7 +82,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         }
 
         totaltickets = totaltickets - Numberoftickets;
-        moviesbookedbycustomer.merge(new String[]{movieID, movieName}, Numberoftickets, Integer::sum);
+        moviesbookedbycustomer.merge(movieID, Numberoftickets, Integer::sum);
         customer.put(CustomerID, moviesbookedbycustomer);
         
         //updaing movies hashmap
@@ -98,6 +98,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         {
             return "No shows booked in "+ServerName;
         }
+
         Iterator it = (customer.get(CustomerID)).entrySet().iterator();
         ArrayList<String> allbookedshows = new ArrayList<>();
 
@@ -106,12 +107,20 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             allbookedshows.add(pair.getValue()+" tickets for "+ pair.getKey());
             it.remove();
         }
-        return null;
+        return allbookedshows.toString();
     }
     
     @Override
     public String cancelMovieTickets(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException {
-
-        return null;
+        
+        int ticketsbookedbycustomer = moviesbookedbycustomer.getOrDefault(movieID,0);
+        if(ticketsbookedbycustomer<Numberoftickets){
+            return "Tickets booked by the user are lesser than the entered amount, you have booked "+ticketsbookedbycustomer+" tickets";
+        }
+        ticketsbookedbycustomer = ticketsbookedbycustomer - Numberoftickets;
+        moviesbookedbycustomer.put(movieID, ticketsbookedbycustomer);
+        
+        (movies.get(movieName)).merge(movieName, Numberoftickets, Integer::sum);
+        return Numberoftickets+" tickets has been cancelled for "+movieName+" with MovieID "+movieID;
     }
 }
