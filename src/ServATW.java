@@ -11,10 +11,9 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     ArrayList<String> admin = new ArrayList<String>();
     
     private HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
-    private HashMap<String, Integer> moviecapacity = new HashMap<>();
     
     private HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
-    private HashMap<String, Integer> moviesbookedbycustomer = new HashMap<>();
+    // private HashMap<String, Integer> moviesbookedbycustomer = new HashMap<>();
     
     private int totaltickets;
     
@@ -48,26 +47,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             movies.put(movieName, movieCapacity);
         }
 
-
-        
-        // boolean movieexists = movies.containsKey(movieName);
-        // if(movieexists==true){
-        //     boolean movieIDexists = (movies.get(movieName)).containsKey(movieID);
-        //     if(movieIDexists==true)
-        //     {
-        //         (movies.get(movieName)).merge(movieID, bookingcapacity,Integer::sum);
-        //     }
-        // }
-        
-        // moviecapacity.put(movieID, bookingcapacity);
-        // movies.put(movieName, moviecapacity);
-
         //FIX MULTIPLE MOVIE THING
         //MERGE FUNCTION HAS PROBLEM
         ///testing
         System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Movies Capacity Hashmap: "+moviecapacity.toString());
-        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
         System.out.println("Hashmap with Customer Values: "+ customer.toString());
         ///
         
@@ -93,8 +76,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         ///testing
         System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Movies Capacity Hashmap: "+moviecapacity.toString());
-        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
         System.out.println("Hashmap with Customer Values: "+ customer.toString());
         ///
         
@@ -119,38 +100,37 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         ///testing
         System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Movies Capacity Hashmap: "+moviecapacity.toString());
-        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
         System.out.println("Hashmap with Customer Values: "+ customer.toString());
         ///
         
         return listallshows.toString();
     }
     
+
+    //Customer End
     @Override
     public String bookMovieTicket(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException{
-        if(!movies.containsKey(movieName) && !moviecapacity.containsKey(movieID)){
+        if(!movies.containsKey(movieName) && !(movies.get(movieName)).containsKey(movieID)){
             return "MovieID/MovieName does not exist!";
         }
-        int totaltickets = (movies.get(movieName)).getOrDefault(movieID,Integer.MAX_VALUE);
+        int totaltickets = (movies.get(movieName)).get(movieID);
         
         if(Numberoftickets>totaltickets){
             return "Lesser slots availabe, you can only book "+totaltickets+" for this show";
         }
         
         totaltickets = totaltickets - Numberoftickets;
-        moviesbookedbycustomer.merge(movieID, Numberoftickets, Integer::sum);
+
+        HashMap<String, Integer> moviesbookedbycustomer = new HashMap<>();
+        moviesbookedbycustomer.put(movieID, customer.get(CustomerID).getOrDefault(movieID, 0) + Numberoftickets);
+        
         customer.put(CustomerID, moviesbookedbycustomer);
         
         //updaing movies hashmap
-        moviecapacity.put(movieID, totaltickets);
-        movies.put(movieName, moviecapacity);
-        
-        
+        (movies.get(movieName)).put(movieID, totaltickets);
         
         ///testing
         System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Movies Capacity Hashmap: "+moviecapacity.toString());
         System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
         System.out.println("Hashmap with Customer Values: "+ customer.toString());
         ///
@@ -176,8 +156,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         ///testing
         System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Movies Capacity Hashmap: "+moviecapacity.toString());
-        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
         System.out.println("Hashmap with Customer Values: "+ customer.toString());
         ///
         
@@ -192,19 +170,17 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     @Override
     public String cancelMovieTickets(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException {
         
-        int ticketsbookedbycustomer = moviesbookedbycustomer.getOrDefault(movieID,0);
+        int ticketsbookedbycustomer = (customer.get(CustomerID)).getOrDefault(movieID,0);
         if(ticketsbookedbycustomer<Numberoftickets){
             return "Tickets booked by the user are lesser than the entered amount, you can book "+totaltickets+" tickets for this show";
         }
         ticketsbookedbycustomer = ticketsbookedbycustomer - Numberoftickets;
-        moviesbookedbycustomer.put(movieID, ticketsbookedbycustomer);
+        (customer.get(CustomerID)).put(movieID, ticketsbookedbycustomer);
         
         (movies.get(movieName)).put(movieID, ((movies.get(movieName)).get(movieID)) - Numberoftickets);
         
         ///testing
         System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Movies Capacity Hashmap: "+moviecapacity.toString());
-        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
         System.out.println("Hashmap with Customer Values: "+ customer.toString());
         ///
         
@@ -232,10 +208,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         if(ID.charAt(3)=='C' || ID.charAt(3)=='c'){
             //admincheck
-            if(admin.contains(ID)){
-                //checking if admin exists in db
-                return "customer";
-            }
+            return "customer";
         }
         return "invalid";
     }
