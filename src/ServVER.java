@@ -18,7 +18,7 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     }
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
-        Registry reg = LocateRegistry.createRegistry(6099);
+        Registry reg = LocateRegistry.createRegistry(7099);
         reg.bind("VER", new ServVER());
         System.out.println("Verdun Server is running!");
     }
@@ -52,9 +52,13 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             boolean movieIDexists = (movies.get(movieName)).containsKey(movieID);
             if(movieIDexists==true){
                 (movies.get(movieName)).remove(movieID);
+                return movieName+" with MovieID "+movieID +" has been removed";
+            } else {
+                return "Movie ID not found for movie name: " + movieName;
             }
+        } else {
+            return "Movie name not found: " + movieName;
         }
-        return movieName+" with MovieID "+movieID +" has been removed";
         
         //if customers have booked scenario
     }

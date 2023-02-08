@@ -14,12 +14,12 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
 
     protected ServOUT() throws RemoteException {
         super();
-        admin.add("VERA9499");
+        admin.add("OUTA9499");
     }
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
-        Registry reg = LocateRegistry.createRegistry(7099);
-        reg.bind("VER", new ServOUT());
+        Registry reg = LocateRegistry.createRegistry(6099);
+        reg.bind("OUT", new ServOUT());
         System.out.println("Outremont Server is running!");
     }
     
@@ -52,9 +52,13 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
             boolean movieIDexists = (movies.get(movieName)).containsKey(movieID);
             if(movieIDexists==true){
                 (movies.get(movieName)).remove(movieID);
+                return movieName+" with MovieID "+movieID +" has been removed";
+            } else {
+                return "Movie ID not found for movie name: " + movieName;
             }
+        } else {
+            return "Movie name not found: " + movieName;
         }
-        return movieName+" with MovieID "+movieID +" has been removed";
         
         //if customers have booked scenario
     }

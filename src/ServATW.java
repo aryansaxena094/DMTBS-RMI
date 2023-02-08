@@ -52,9 +52,13 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             boolean movieIDexists = (movies.get(movieName)).containsKey(movieID);
             if(movieIDexists==true){
                 (movies.get(movieName)).remove(movieID);
+                return movieName+" with MovieID "+movieID +" has been removed";
+            } else {
+                return "Movie ID not found for movie name: " + movieName;
             }
+        } else {
+            return "Movie name not found: " + movieName;
         }
-        return movieName+" with MovieID "+movieID +" has been removed";
         
         //if customers have booked scenario
     }
