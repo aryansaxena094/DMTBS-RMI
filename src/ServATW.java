@@ -9,12 +9,9 @@ import java.util.*;
 public class ServATW extends UnicastRemoteObject implements RMIs {
     private String ServerName = "Atwater";
     ArrayList<String> admin = new ArrayList<String>();
-    
     private HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
-    
-    private int totaltickets;
-    
+
     protected ServATW() throws RemoteException {
         super();
         admin.add("ATWA9499");
@@ -44,14 +41,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             movieCapacity.put(movieID, bookingcapacity);
             movies.put(movieName, movieCapacity);
         }
-        
-        //FIX MULTIPLE MOVIE THING
-        //MERGE FUNCTION HAS PROBLEM
-        ///testing
-        System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Hashmap with Customer Values: "+ customer.toString());
-        ///
-        
         return movieName+" with MovieID "+ movieID +" has been created with "+bookingcapacity + " capacity";
     }
     
@@ -65,16 +54,9 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
                 (movies.get(movieName)).remove(movieID);
             }
         }
-        
-        ///testing
-        System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Hashmap with Customer Values: "+ customer.toString());
-        ///
-        
         return movieName+" with MovieID "+movieID +" has been removed";
         
-        //if while removing customers have booked then scenario!!
-        
+        //if customers have booked scenario
     }
     
     @Override
@@ -84,18 +66,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             return "No shows with this Movie Name";
         }
         ArrayList<String> listallshows = new ArrayList<String>();
-        Iterator it = (movies.get(movieName)).entrySet().iterator();
-        while(it.hasNext()){
-            Map.Entry pair = (Map.Entry) it.next();
-            listallshows.add(pair.getKey()+" with "+pair.getValue()+" capacity");
-            it.remove();
+        Map<String, Integer> tempMap = new HashMap<>(movies.get(movieName));
+        for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
+            listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
         }
-        
-        ///testing
-        System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Hashmap with Customer Values: "+ customer.toString());
-        ///
-        
         return listallshows.toString();
     }
     
@@ -122,13 +96,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         HashMap<String, Integer> moviesbookedbycustomer = customer.get(CustomerID);
         moviesbookedbycustomer.put(movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
         
-        //updaing movies hashmap
         (movies.get(movieName)).put(movieID, totaltickets);
-        
-        System.out.println("Movies Hashmap: "+movies.toString());
-        System.out.println("Hashmap with MovieID & tickets: "+ moviesbookedbycustomer.toString());
-        System.out.println("Hashmap with Customer Values: "+ customer.toString());
-        
         return Numberoftickets+ " Tickets have been booked to "+movieID+" show of "+movieName;
     }
     
@@ -139,14 +107,14 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         {
             return "No shows booked in "+ServerName;
         }
-    
+        
         HashMap<String, Integer> customerBookings = customer.get(CustomerID);
         ArrayList<String> allbookedshows = new ArrayList<>();
-    
+        
         for (Map.Entry<String, Integer> booking : customerBookings.entrySet()) {
             allbookedshows.add(booking.getValue() + " tickets for " + booking.getKey());
         }
-    
+        
         return allbookedshows.toString();
     }
     
@@ -155,25 +123,25 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         if (!customer.containsKey(CustomerID)) {
             return "Customer ID not found.";
         }
-    
+        
         HashMap<String, Integer> customerBookings = customer.get(CustomerID);
         if (!customerBookings.containsKey(movieID)) {
             return "No tickets found for the movie with ID " + movieID;
         }
-    
+        
         if (customerBookings.get(movieID) < Numberoftickets) {
             return "Only " + customerBookings.get(movieID) + " tickets found for the movie with ID " + movieID;
         }
-    
+        
         if (!movies.containsKey(movieName)) {
             return "Movie with name " + movieName + " not found.";
         }
-    
+        
         HashMap<String, Integer> movieBookings = movies.get(movieName);
         if (!movieBookings.containsKey(movieID)) {
             return "Movie with ID " + movieID + " not found.";
         }
-    
+        
         customerBookings.put(movieID, customerBookings.get(movieID) - Numberoftickets);
         movieBookings.put(movieID, movieBookings.get(movieID) + Numberoftickets);
         
@@ -205,11 +173,20 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     
     @Override
     public String verifyMovieID(String movieID) throws RemoteException{
-        //verifying the movie ID
+        if (movieID.length() != 8) {
+            return "Invalid movie ID: Must be 8 characters long";
+        }
         
+        char session = movieID.charAt(3);
+        if (session != 'M' && session != 'A' && session != 'E') {
+            return "Invalid movie ID: Fourth character must be M (morning), A (afternoon), or E (evening)";
+        }
         
-        
-        
-        return null;
+        int day = Integer.parseInt(movieID.substring(4, 6));
+        int month = Integer.parseInt(movieID.substring(6, 8));
+        if (month < 1 || month > 12 || day < 1 || day > 31) {
+            return "Invalid movie ID: Invalid date format";
+        }
+        return "Valid movie ID";
     }
 }
