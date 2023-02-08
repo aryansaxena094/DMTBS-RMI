@@ -14,8 +14,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     private String ServerName = "Atwater";
     private HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private HashMap<String, Integer> moviecapacity = new HashMap<>();
-    private HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
-    private HashMap<String, Integer> moviesbookedbycustomer = new HashMap<>();
+
+
+    private HashMap<String, HashMap<String[], Integer>> customer = new HashMap<>();
+    private HashMap<String[], Integer> moviesbookedbycustomer = new HashMap<>();
     private int totaltickets;
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
@@ -80,7 +82,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         }
 
         totaltickets = totaltickets - Numberoftickets;
-        moviesbookedbycustomer.merge(movieID, Numberoftickets, Integer::sum);
+        moviesbookedbycustomer.merge(new String[]{movieID, movieName}, Numberoftickets, Integer::sum);
         customer.put(CustomerID, moviesbookedbycustomer);
         
         //updaing movies hashmap
@@ -98,6 +100,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         }
         Iterator it = (customer.get(CustomerID)).entrySet().iterator();
         ArrayList<String> allbookedshows = new ArrayList<>();
+
         while(it.hasNext()){
             Map.Entry pair = (Map.Entry) it.next();
             allbookedshows.add(pair.getValue()+" tickets for "+ pair.getKey());
@@ -107,9 +110,8 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     }
     
     @Override
-    public String cancelMovieTickets(String CustomerID, String movieID, String movieName, int Numberoftickets)
-    throws RemoteException {
-        // TODO Auto-generated method stub
+    public String cancelMovieTickets(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException {
+
         return null;
     }
 }
