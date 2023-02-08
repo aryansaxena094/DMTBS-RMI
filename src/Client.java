@@ -50,9 +50,9 @@ public class Client {
         RMIs servatw = (RMIs) Naming.lookup("rmi://localhost:5099/ATW");
         
         program:while(true){
-            String verification = "invalid";
+            String verification = "This entered ID is invalid";
             
-            while(verification.equalsIgnoreCase("invalid")){
+            while(verification.equalsIgnoreCase("This entered ID is invalid")){
                 System.out.println("Please Enter your ID: ");
                 ID = sc.nextLine();
                 
@@ -73,22 +73,17 @@ public class Client {
                 {
                     verification = "invalid";
                 }
+                System.out.println(verification);
             }
             user:while(true){
 
                 //variables (most used)
                 String movieID = "";
                 String movieName = "";
-
-                if(verification.equalsIgnoreCase("admin")){
-                    adminmenu(ID);
-                }
-                else if(verification.equalsIgnoreCase("customer")){
-                    customermenu(ID);
-                }
-                int menuinp = Integer.parseInt(sc.nextLine());
                 
-                if(verification.equalsIgnoreCase("admin")){
+                if(verification.equalsIgnoreCase("Welcome Admin!")){
+                    adminmenu(ID);
+                    int menuinp = Integer.parseInt(sc.nextLine());
                     //admin menu
                     switch(menuinp){
                         case 1:{
@@ -187,9 +182,10 @@ public class Client {
                         default: break;
                     }
                 }
-                else if(verification.equalsIgnoreCase("customer"))
+                else if(verification.equalsIgnoreCase("Welcome Customer!"))
                 {//customer menu
                     customermenu(ID);
+                    int menuinp = Integer.parseInt(sc.nextLine());
                     switch(menuinp){
                         case 1:{
                             //booking movie ticket
