@@ -18,7 +18,7 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
     }
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
-        Registry reg = LocateRegistry.createRegistry(5099);
+        Registry reg = LocateRegistry.createRegistry(7099);
         reg.bind("VER", new ServOUT());
         System.out.println("Outremont Server is running!");
     }
