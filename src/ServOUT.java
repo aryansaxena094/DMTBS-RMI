@@ -10,7 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 public class ServOUT extends UnicastRemoteObject implements RMIs {
-    private static String ServerName = "Atwater";
+    private static String ServerName = "Outremont";
     
     private static ArrayList<String> admin = new ArrayList<String>();
 
@@ -22,19 +22,16 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
     //OUTREMONT PORTS
     static int alwaysonport = 6000;
     static int dataincoming = 6001;
-    static int dataoutgoing = 6002;
     
     //server1 ports
     //VERDUN PORTS
     static int serv1alwaysonport = 7000;
     static int serv1dataincoming = 7001;
-    static int serv1dataoutgoing = 7002;
     
     //datafrom server2 ports
     //ATWATER PORTS
     static int serv2alwaysonport = 5000;
     static int serv2dataincoming = 5001;
-    static int serv2dataoutgoing = 5002;
 
     
     protected ServOUT() throws RemoteException {
@@ -48,14 +45,14 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
         System.out.println("Outremont Server is running!");
         
         try (//UDP Server OPEN PORT ALWAYS OPEN
-        DatagramSocket ATWSocket = new DatagramSocket(alwaysonport)) 
+        DatagramSocket OUTSocket = new DatagramSocket(alwaysonport)) 
         {
             byte[] receivedata = new byte[1024];
             
             //Keeping UDP Port Open for Recieving
             while(true){
                 DatagramPacket receivePacket = new DatagramPacket(receivedata, receivedata.length);
-                ATWSocket.receive(receivePacket);
+                OUTSocket.receive(receivePacket);
                 String recieved = receivePacket.toString();
                 
                 //sample recieved: LATWAVATAR

@@ -25,19 +25,16 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     //VERDUN PORTS
     static int alwaysonport = 7000;
     static int dataincoming = 7001;
-    static int dataoutgoing = 7002;
     
     //server1 ports
     //ATWATER PORTS
     static int serv1alwaysonport = 5000;
     static int serv1dataincoming = 5001;
-    static int serv1dataoutgoing = 5002;
     
     //datafrom server2 ports
     //OUTREMONT PORTS
     static int serv2alwaysonport = 6000;
     static int serv2dataincoming = 6001;
-    static int serv2dataoutgoing = 6002;
 
     
     protected ServVER() throws RemoteException {
@@ -51,14 +48,14 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         System.out.println("Verdun Server is running!");
         
         try (//UDP Server OPEN PORT ALWAYS OPEN
-        DatagramSocket ATWSocket = new DatagramSocket(alwaysonport)) 
+        DatagramSocket VERSocket = new DatagramSocket(alwaysonport)) 
         {
             byte[] receivedata = new byte[1024];
             
             //Keeping UDP Port Open for Recieving
             while(true){
                 DatagramPacket receivePacket = new DatagramPacket(receivedata, receivedata.length);
-                ATWSocket.receive(receivePacket);
+                VERSocket.receive(receivePacket);
                 String recieved = receivePacket.toString();
                 
                 //sample recieved: LATWAVATAR

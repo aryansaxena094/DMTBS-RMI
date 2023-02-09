@@ -25,19 +25,16 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     //ATWATER PORTS
     static int alwaysonport = 5000;
     static int dataincoming = 5001;
-    static int dataoutgoing = 5002;
     
     //server1 ports
     //OUTREMONT PORTS
     static int serv1alwaysonport = 6000;
     static int serv1dataincoming = 6001;
-    static int serv1dataoutgoing = 6002;
     
     //datafrom server2 ports
     //VERDUN PORTS
     static int serv2alwaysonport = 7000;
     static int serv2dataincoming = 7001;
-    static int serv2dataoutgoing = 7002;
 
     
     protected ServATW() throws RemoteException {
