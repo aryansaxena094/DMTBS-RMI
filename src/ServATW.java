@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -90,6 +92,12 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             movieCapacity.put(movieID, bookingcapacity);
             movies.put(movieName, movieCapacity);
         }
+
+
+        print();
+
+
+
         return movieName+" with MovieID "+ movieID +" has been created with "+bookingcapacity + " capacity";
     }
     
@@ -101,6 +109,11 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             boolean movieIDexists = (movies.get(movieName)).containsKey(movieID);
             if(movieIDexists==true){
                 (movies.get(movieName)).remove(movieID);
+
+                print();
+
+
+
                 return movieName+" with MovieID "+movieID +" has been removed";
             } else {
                 return "Movie ID not found for movie name: " + movieName;
@@ -204,7 +217,11 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         HashMap<String, Integer> moviesbookedbycustomer = customer.get(CustomerID);
         moviesbookedbycustomer.put(movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
         
+
         (movies.get(movieName)).put(movieID, totaltickets);
+
+        print();
+
         return Numberoftickets+ " Tickets have been booked to "+movieID+" show of "+movieName;
     }
     
@@ -223,6 +240,9 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             allbookedshows.add(booking.getValue() + " tickets for " + booking.getKey());
         }
         
+        print();
+
+
         return allbookedshows.toString();
     }
     
@@ -253,12 +273,16 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         customerBookings.put(movieID, customerBookings.get(movieID) - Numberoftickets);
         movieBookings.put(movieID, movieBookings.get(movieID) + Numberoftickets);
         
+
+        print();
+
+
         return Numberoftickets + " tickets has been cancelled for " + movieName + " with MovieID " + movieID;
     }
     
     @Override
     public String verifyID(String ID) throws RemoteException{
-        
+
         if(ID.length() < 8 || ID.charAt(3)!='A' &&  ID.charAt(3)!='C' && ID.charAt(3)!='a' && ID.charAt(3)!='c')
         {
             return "This entered ID is invalid";
@@ -280,9 +304,9 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     }
     
     @Override
-    public String verifyMovieID(String movieID) throws RemoteException{
-        if (movieID.length() != 8) {
-            return "Invalid movie ID: Must be 8 characters long";
+    public String verifyMovieID(String movieID) throws RemoteException, ParseException{
+        if (movieID.length() != 10) {
+            return "Invalid movie ID: Must be 10 characters long";
         }
         
         char session = movieID.charAt(3);
@@ -292,8 +316,20 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         int day = Integer.parseInt(movieID.substring(4, 6));
         int month = Integer.parseInt(movieID.substring(6, 8));
+        int year = Integer.parseInt(20+""+movieID.substring(8,10));
+
         if (month < 1 || month > 12 || day < 1 || day > 31) {
             return "Invalid movie ID: Invalid date format";
+        }
+
+        String datestring = ""+day+month+year;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyy");
+        Date date = dateFormat.parse(datestring);
+        Date currentdate = new Date();
+
+        if(date.before(currentdate))
+        {
+            return "You can only access tickets for one week from now!";
         }
         return "Valid";
     }
@@ -335,8 +371,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
 
     //adding admin
 
-    public String addadmin(String adminID){
-
+    public String addadmin(String adminID) throws RemoteException{
         if(adminID.length() < 8 || adminID.charAt(3)!='A'  && adminID.charAt(3)!='a')
         {
             return "This entered ID is invalid";
@@ -356,5 +391,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     }
 
 
+    public static void print(){
+        System.out.println(ServerName+" Hashmaps");
+        System.out.println("Movies Hashmap: "+movies);
+        System.out.println("Customer Hashmap: "+customer);
+    }
 
 }

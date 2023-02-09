@@ -2,22 +2,27 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.text.ParseException;
 import java.util.Scanner;
 
 public class Client {
     
     public static void intro()
     {
-        System.out.println("***************************************************");
-        System.out.println("**** Distributed Movie Ticketing Service(DMTS) ****");
-        System.out.println("***************************************************");
+        System.out.println("***************************************************************************************************************************");
+        System.out.println("***************************************************************************************************************************");
+        System.out.println("******************************** Distributed Movie Ticketing Service(DMTS) ************************************************");
+        System.out.println("***************************************************************************************************************************");
+        System.out.println("***************************************************************************************************************************");
         
     }
     
     public static void conclusion(){
-        System.out.println("***************************************************");
-        System.out.println("************ Thank you for using DMTS! ************");
-        System.out.println("***************************************************");
+        System.out.println("*******************************************************************************************************************");
+        System.out.println("*******************************************************************************************************************");
+        System.out.println("******************************************** Thank you for using DMTS! ********************************************");
+        System.out.println("*******************************************************************************************************************");
+        System.out.println("*******************************************************************************************************************");
     }
     
     public static void adminmenu(String ID){
@@ -40,7 +45,7 @@ public class Client {
         System.out.println("5. EXIT \r\n");
     }
     
-    public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException {
+    public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException, ParseException {
         intro();
         Scanner sc = new Scanner(System.in);
         String ID = "";
@@ -64,15 +69,18 @@ public class Client {
                 if(ID.length() > 3)
                 {
                     if(ID.substring(0,3).equalsIgnoreCase("ATW"))
-                    {//verification for ATWATER
+                    { 
+                        //verification for ATWATER
                         verification = servATW.verifyID(ID);
                     }
-                    else if(ID.substring(0,2).equalsIgnoreCase("VER"))
+                    else if(ID.substring(0,3).equalsIgnoreCase("VER"))
                     {
+                        //verification for VERDUN
                         verification = servVER.verifyID(ID);
                     }
-                    else if(ID.substring(0,2).equalsIgnoreCase("OUT")) 
-                    {//verification for ATWATER
+                    else if(ID.substring(0,3).equalsIgnoreCase("OUT")) 
+                    { 
+                        //verification for OUTREMONT
                         verification = servOUT.verifyID(ID);
                     }
                 }
@@ -101,11 +109,9 @@ public class Client {
                             
                             while(true)
                             {
-                                System.out.println("Enter MovieID: ");
-                                movieID = sc.nextLine();
-                                
+
                                 String movieidverification = "";
-                                while(movieidverification!="Valid"){
+                                while(!movieidverification.equalsIgnoreCase("Valid")){
                                     System.out.println(movieidverification);
                                     System.out.println("MovieID: ");
                                     movieID = sc.nextLine();
@@ -119,9 +125,6 @@ public class Client {
                                         movieidverification = servOUT.verifyMovieID(movieID);
                                     }
                                 }
-                                
-                                
-                                
                                 
                                 if(movieID.substring(0,3).equals(whichadmin)){
                                     break;
@@ -164,7 +167,7 @@ public class Client {
                                 movieID = sc.nextLine();
                                 
                                 String movieidverification = "";
-                                while(movieidverification!="Valid"){
+                                while(!movieidverification.equalsIgnoreCase("Valid")){
                                     System.out.println(movieidverification);
                                     System.out.println("MovieID: ");
                                     movieID = sc.nextLine();
@@ -271,7 +274,7 @@ public class Client {
                             
                             //Getting Movie ID
                             String movieidverification = "";
-                            while(movieidverification!="Valid"){
+                            while(!movieidverification.equalsIgnoreCase("Valid")){
                                 System.out.println(movieidverification);
                                 System.out.println("MovieID: ");
                                 movieID = sc.nextLine();
@@ -314,7 +317,7 @@ public class Client {
                             System.out.println("If you wish to cancel a movie ticket, please enter - ");
                             
                             String movieidverification = "";
-                            while(movieidverification!="Valid"){
+                            while(!movieidverification.equalsIgnoreCase("Valid")){
                                 System.out.println(movieidverification);
                                 System.out.println("MovieID: ");
                                 movieID = sc.nextLine();

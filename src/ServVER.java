@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -305,7 +307,7 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     }
     
     @Override
-    public String verifyMovieID(String movieID) throws RemoteException{
+    public String verifyMovieID(String movieID) throws RemoteException, ParseException{
         if (movieID.length() != 10) {
             return "Invalid movie ID: Must be 10 characters long";
         }
@@ -317,11 +319,21 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         
         int day = Integer.parseInt(movieID.substring(4, 6));
         int month = Integer.parseInt(movieID.substring(6, 8));
+        int year = Integer.parseInt(20+""+movieID.substring(8,10));
 
         if (month < 1 || month > 12 || day < 1 || day > 31) {
             return "Invalid movie ID: Invalid date format";
         }
-        
+
+        String datestring = ""+day+month+year;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyy");
+        Date date = dateFormat.parse(datestring);
+        Date currentdate = new Date();
+
+        if(date.before(currentdate))
+        {
+            return "You can only access tickets for one week from now!";
+        }
         return "Valid";
     }
     
