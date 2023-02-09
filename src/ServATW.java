@@ -17,19 +17,22 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     
     //own port
-    static int alwaysonport = 9999;
-    static int dataincoming = 1234;
-    static int dataoutgoing = 2345;
+    //ATWATER PORTS
+    static int alwaysonport = 5000;
+    static int dataincoming = 5001;
+    static int dataoutgoing = 5002;
     
     //server1 ports
-    static int serv1alwaysonport = 9999;
-    static int serv1dataincoming = 1222;
-    static int serv1dataoutgoing = 1222;
+    //OUTREMONT PORTS
+    static int serv1alwaysonport = 6000;
+    static int serv1dataincoming = 6001;
+    static int serv1dataoutgoing = 6002;
     
     //datafrom server2 ports
-    static int serv2alwaysonport = 9999;
-    static int serv2dataincoming = 7777;
-    static int serv2dataoutgoing = 8593;
+    //VERDUN PORTS
+    static int serv2alwaysonport = 7000;
+    static int serv2dataincoming = 7001;
+    static int serv2dataoutgoing = 7002;
 
     
     protected ServATW() throws RemoteException {
@@ -42,12 +45,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         reg.bind("ATW", new ServATW());
         System.out.println("Atwater Server is running!");
         
-
-
-
-
-
-
         try (//UDP Server OPEN PORT ALWAYS OPEN
         DatagramSocket ATWSocket = new DatagramSocket(alwaysonport)) 
         {
@@ -135,7 +132,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             String sendingrequest = "L"+"ATW"+movieName;
             byte[] senddata = new byte[1024];
             senddata = sendingrequest.getBytes();
-            
+
             byte[] receivedataserv1 = new byte[1024];
             byte[] receivedataserv2 = new byte[1024];
 
@@ -179,7 +176,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         }
         
         
-        return "ServerName: " + listallshows.toString() + " " + output;   
+        return ServerName + " : " + listallshows.toString() + " " + output;   
     }
     
     
@@ -315,7 +312,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             InetAddress ip = InetAddress.getLocalHost();
             DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, 6999);
             
-            if(serverrequest.equalsIgnoreCase("ATW"))
+            if(serverrequest.equalsIgnoreCase("OUT"))
             {
                 DatagramSocket toserv = new DatagramSocket(serv1dataincoming);
                 toserv.send(sendpacket);
@@ -330,7 +327,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // TODO: handle exception
         }
         
     }
