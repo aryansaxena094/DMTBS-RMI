@@ -285,7 +285,7 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         if (movieID.length() != 8) {
             return "Invalid movie ID: Must be 8 characters long";
         }
-        
+
         char session = movieID.charAt(3);
         if (session != 'M' && session != 'A' && session != 'E') {
             return "Invalid movie ID: Fourth character must be M (morning), A (afternoon), or E (evening)";
