@@ -44,8 +44,15 @@ public class Client {
         intro();
         Scanner sc = new Scanner(System.in);
         String ID = "";
+        int RMIportATW = 4000;
+        int RMIportVER = 4001;
+        int RMIportOUT = 4002;
+        
         //Connecting to Servers
-        RMIs servatw = (RMIs) Naming.lookup("rmi://localhost:5099/ATW");
+        RMIs servATW = (RMIs) Naming.lookup("rmi://localhost:"+RMIportATW+"/ATW");
+        RMIs servVER = (RMIs) Naming.lookup("rmi://localhost:"+RMIportVER+"/VER");
+        RMIs servOUT = (RMIs) Naming.lookup("rmi://localhost:"+RMIportOUT+"/OUT");
+        
         
         program:while(true){
             String verification = "This entered ID is invalid";
@@ -56,15 +63,17 @@ public class Client {
                 
                 if(ID.length() > 3)
                 {
-                    if(ID.substring(0,3).equalsIgnoreCase("ATW")){
-                        verification = servatw.verifyID(ID);
+                    if(ID.substring(0,3).equalsIgnoreCase("ATW"))
+                    {//verification for ATWATER
+                        verification = servATW.verifyID(ID);
                     }
                     else if(ID.substring(0,2).equalsIgnoreCase("VER"))
                     {
-
+                        verification = servVER.verifyID(ID);
                     }
-                    else if(ID.substring(0,2).equalsIgnoreCase("OUT")) {
-                        
+                    else if(ID.substring(0,2).equalsIgnoreCase("OUT")) 
+                    {//verification for ATWATER
+                        verification = servOUT.verifyID(ID);
                     }
                 }
                 else
@@ -74,7 +83,7 @@ public class Client {
                 System.out.println(verification);
             }
             user:while(true){
-
+                
                 //variables (most used)
                 String movieID = "";
                 String movieName = "";
@@ -89,7 +98,7 @@ public class Client {
                             //general variables
                             String whichadmin = ID.substring(0,3);
                             int bookingcapacity = 0;
-
+                            
                             while(true)
                             {
                                 System.out.println("Enter MovieID: ");
@@ -106,14 +115,18 @@ public class Client {
                             
                             //accessing RMI
                             
-                            if(whichadmin.equalsIgnoreCase("ATW")){
+                            if(whichadmin.equalsIgnoreCase("ATW"))
+                            {
                                 //adding to atwater
-                                System.out.println("\n\r"+servatw.addMovieSlots(movieID,movieName,bookingcapacity));
+                                System.out.println("\n\r"+servATW.addMovieSlots(movieID,movieName,bookingcapacity));
                             }
-                            else if(whichadmin.equalsIgnoreCase("VER")){
+                            else if(whichadmin.equalsIgnoreCase("VER"))
+                            {
+                                System.out.println("\n\r"+servVER.addMovieSlots(movieID,movieName,bookingcapacity));
                                 //adding to verdun
                             }
                             else if(whichadmin.equalsIgnoreCase("OUT")){
+                                System.out.println("\n\r"+servOUT.addMovieSlots(movieID,movieName,bookingcapacity));
                                 //adding to outremont
                             }
                         }
@@ -123,7 +136,7 @@ public class Client {
                             //deleting from the server
                             //general variables
                             String whichadmin = ID.substring(0,3);
-
+                            
                             while(true)
                             {
                                 System.out.println("Enter MovieID: ");
@@ -137,35 +150,62 @@ public class Client {
                             movieName = sc.nextLine();
                             
                             if(whichadmin.equalsIgnoreCase("ATW")){
-                                System.out.println("\n\r"+servatw.removeMovieSlots(movieID,movieName));
+                                System.out.println("\n\r"+servATW.removeMovieSlots(movieID,movieName));
                             }
                             else if(whichadmin.equalsIgnoreCase("VER")){
+                                System.out.println("\n\r"+servVER.removeMovieSlots(movieID,movieName));
                                 //removing from verdun
                             }
                             else if(whichadmin.equalsIgnoreCase("OUT")){
+                                System.out.println("\n\r"+servOUT.removeMovieSlots(movieID,movieName));
                                 //removing from outremont
                             }
-                            
                         }
                         break;
                         
                         case 3:{
+                            //identifying admin
+                            String whichadmin = ID.substring(0,3);
+                            
+                            
                             System.out.println("Enter the Movie Name of which you wish to see the shows for: ");
                             movieName = sc.nextLine();
-                            System.out.println("Atwater: ");
-                            System.out.println("\n\r"+servatw.listMovieShows(movieName));
                             
-                            //write for other two servers too!
-                            // RMIs servatw = (RMIs) Naming.lookup("rmi://localhost:5099/ATW");
-                            // System.out.println("\n\r"+servatw.listMovieShows(movieName));
-                            
-                            // RMIs servatw = (RMIs) Naming.lookup("rmi://localhost:5099/ATW");
-                            // System.out.println("\n\r"+servatw.listMovieShows(movieName));
-                            
+                            if(whichadmin.equalsIgnoreCase("ATW")){
+                                System.out.println("\n\r"+servATW.listMovieShows(movieName));
+                                //getting from atwater
+                            }
+                            else if(whichadmin.equalsIgnoreCase("VER")){
+                                System.out.println("\n\r"+servVER.listMovieShows(movieName));
+                                //getting from verdun
+                            }
+                            else if(whichadmin.equalsIgnoreCase("OUT")){
+                                System.out.println("\n\r"+servOUT.listMovieShows(movieName));
+                                //getting from outremont
+                            }
                         }
                         break;
                         
                         case 4:{
+                            
+                            String whichadmin = ID.substring(0,3);
+                            
+                            System.out.println("Enter the Admin ID you wish to your server: "+whichadmin);
+                            String admintobeadded = sc.nextLine();
+                            
+                            //adding admin to the respective servers
+                            if(whichadmin.equalsIgnoreCase("ATW")){
+                                System.out.println("\n\r"+servATW.addadmin(admintobeadded));
+                                //getting from atwater
+                            }
+                            else if(whichadmin.equalsIgnoreCase("VER")){
+                                System.out.println("\n\r"+servVER.addadmin(admintobeadded));
+                                //getting from verdun
+                            }
+                            else if(whichadmin.equalsIgnoreCase("OUT")){
+                                System.out.println("\n\r"+servOUT.addadmin(admintobeadded));
+                                //getting from outremont
+                            }
                             
                         }
                         break;
@@ -184,41 +224,90 @@ public class Client {
                 {//customer menu
                     customermenu(ID);
                     int menuinp = Integer.parseInt(sc.nextLine());
+                    String whichcustomer = ID.substring(0,3);
                     switch(menuinp){
                         case 1:{
                             //booking movie ticket
                             //variables
                             int ticketstobebooked = 0;
                             
+                            //Getting Movie ID
+                            String movieidverification = "";
+                            while(movieidverification!="Valid"){
+                                System.out.println(movieidverification);
+                                System.out.println("MovieID: ");
+                                movieID = sc.nextLine();
+                                if(whichcustomer.equalsIgnoreCase("ATW")){
+                                    movieidverification = servATW.verifyMovieID(movieID);
+                                }
+                                else if(whichcustomer.equalsIgnoreCase("VER")){
+                                    movieidverification = servVER.verifyMovieID(movieID);
+                                }
+                                else if(whichcustomer.equalsIgnoreCase("OUT")){
+                                    movieidverification = servOUT.verifyMovieID(movieID);
+                                }
+                            }
+                            
                             System.out.println("Name of the Movie: ");
                             movieName = sc.nextLine();
-                            System.out.println("MovieID: ");
-                            movieID = sc.nextLine();
+                            
                             System.out.println("Enter the nubmer of tickets to be booked: ");
                             ticketstobebooked = Integer.parseInt(sc.nextLine());
-
-                            System.out.println(servatw.bookMovieTicket(ID,movieID,movieName,ticketstobebooked));
+                            System.out.println(servATW.bookMovieTicket(ID,movieID,movieName,ticketstobebooked));
                             
                         }
                         break;
                         case 2:{
-                            System.out.println(servatw.getBookingSchedule(ID));
+                            if(whichcustomer.equalsIgnoreCase("ATW")){
+                                System.out.println(servATW.getBookingSchedule(ID));
+                            }
+                            else if(whichcustomer.equalsIgnoreCase("VER")){
+                                System.out.println(servVER.getBookingSchedule(ID));
+                            }
+                            else if(whichcustomer.equalsIgnoreCase("OUT")){
+                                System.out.println(servOUT.getBookingSchedule(ID));
+                            }
                         }
                         break;
                         case 3:{
                             //CANCELLING THE MOVIE TICKET
                             int Numberoftickets = 0;
-
+                            
                             System.out.println("If you wish to cancel a movie ticket, please enter - ");
-
-                            System.out.println("Movie ID of the ticket booked: ");
-                            movieID = sc.nextLine();
+                            
+                            String movieidverification = "";
+                            while(movieidverification!="Valid"){
+                                System.out.println(movieidverification);
+                                System.out.println("MovieID: ");
+                                movieID = sc.nextLine();
+                                if(whichcustomer.equalsIgnoreCase("ATW")){
+                                    movieidverification = servATW.verifyMovieID(movieID);
+                                }
+                                else if(whichcustomer.equalsIgnoreCase("VER")){
+                                    movieidverification = servVER.verifyMovieID(movieID);
+                                }
+                                else if(whichcustomer.equalsIgnoreCase("OUT")){
+                                    movieidverification = servOUT.verifyMovieID(movieID);
+                                }
+                            }
+                            
                             System.out.println("Name of the Movie booked");
                             movieName = sc.nextLine();
+                            
                             System.out.println("Number of tickets you wish to cancel");
                             Numberoftickets = Integer.parseInt(sc.nextLine());
                             
-                            System.out.println(servatw.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));                            
+
+                            if(whichcustomer.equalsIgnoreCase("ATW")){
+                                System.out.println(servATW.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));    
+                            }
+                            else if(whichcustomer.equalsIgnoreCase("VER")){
+                                System.out.println(servVER.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));    
+                            }
+                            else if(whichcustomer.equalsIgnoreCase("OUT")){
+                                System.out.println(servOUT.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));    
+                            }
+                                                    
                         }
                         break;
                         case 4:{

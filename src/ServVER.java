@@ -12,10 +12,15 @@ import java.util.*;
 
 public class ServVER extends UnicastRemoteObject implements RMIs {
     private static String ServerName = "Verdun";
-    ArrayList<String> admin = new ArrayList<String>();
+    
+    private static ArrayList<String> admin = new ArrayList<String>();
+
     private static HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     
+    //portfor RMI
+    static int RMIport = 4001;
+
     //own port
     //VERDUN PORTS
     static int alwaysonport = 7000;
@@ -41,7 +46,7 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     }
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, IOException {
-        Registry reg = LocateRegistry.createRegistry(5099);
+        Registry reg = LocateRegistry.createRegistry(RMIport);
         reg.bind("VER", new ServATW());
         System.out.println("Verdun Server is running!");
         
@@ -328,4 +333,30 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         }
         
     }
+
+
+    //adding admin
+
+    public String addadmin(String adminID){
+
+        if(adminID.length() < 8 || adminID.charAt(3)!='A'  && adminID.charAt(3)!='a')
+        {
+            return "This entered ID is invalid";
+        }
+
+        if(!adminID.substring(0,4).equalsIgnoreCase("VER")){
+            return "This admin cannot be created in "+ServerName;
+        }
+
+        if(admin.contains(adminID)){
+            return "Admin already exists!";
+        }
+
+        admin.add(adminID);
+        return "Admin has been successfully added";
+    }
+
+
+
+
 }

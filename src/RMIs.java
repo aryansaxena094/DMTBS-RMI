@@ -11,6 +11,9 @@ interface RMIs extends Remote{
     public String removeMovieSlots(String movieID ,String movieName) throws RemoteException;
     public String listMovieShows(String movieName) throws RemoteException;
 
+    //adding admin
+    public String addadmin(String adminID);
+
     //Customer
     public String bookMovieTicket(String CustomerID ,String movieID, String movieName, int Numberoftickets) throws RemoteException;
     public String getBookingSchedule(String CustomerID) throws RemoteException;
