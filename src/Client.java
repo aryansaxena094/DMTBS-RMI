@@ -103,11 +103,32 @@ public class Client {
                             {
                                 System.out.println("Enter MovieID: ");
                                 movieID = sc.nextLine();
+                                
+                                String movieidverification = "";
+                                while(movieidverification!="Valid"){
+                                    System.out.println(movieidverification);
+                                    System.out.println("MovieID: ");
+                                    movieID = sc.nextLine();
+                                    if(whichadmin.equalsIgnoreCase("ATW")){
+                                        movieidverification = servATW.verifyMovieID(movieID);
+                                    }
+                                    else if(whichadmin.equalsIgnoreCase("VER")){
+                                        movieidverification = servVER.verifyMovieID(movieID);
+                                    }
+                                    else if(whichadmin.equalsIgnoreCase("OUT")){
+                                        movieidverification = servOUT.verifyMovieID(movieID);
+                                    }
+                                }
+                                
+                                
+                                
+                                
                                 if(movieID.substring(0,3).equals(whichadmin)){
                                     break;
                                 }
                                 System.out.println("You are not allowed to access this server!");
                             }
+                            
                             System.out.println("Enter Name of the Movie: ");
                             movieName = sc.nextLine();
                             System.out.println("Enter the Capacity you wish to add: ");
@@ -141,6 +162,23 @@ public class Client {
                             {
                                 System.out.println("Enter MovieID: ");
                                 movieID = sc.nextLine();
+                                
+                                String movieidverification = "";
+                                while(movieidverification!="Valid"){
+                                    System.out.println(movieidverification);
+                                    System.out.println("MovieID: ");
+                                    movieID = sc.nextLine();
+                                    if(whichadmin.equalsIgnoreCase("ATW")){
+                                        movieidverification = servATW.verifyMovieID(movieID);
+                                    }
+                                    else if(whichadmin.equalsIgnoreCase("VER")){
+                                        movieidverification = servVER.verifyMovieID(movieID);
+                                    }
+                                    else if(whichadmin.equalsIgnoreCase("OUT")){
+                                        movieidverification = servOUT.verifyMovieID(movieID);
+                                    }
+                                }
+
                                 if(movieID.substring(0,3).equals(whichadmin)){
                                     break;
                                 }
@@ -297,7 +335,7 @@ public class Client {
                             System.out.println("Number of tickets you wish to cancel");
                             Numberoftickets = Integer.parseInt(sc.nextLine());
                             
-
+                            
                             if(whichcustomer.equalsIgnoreCase("ATW")){
                                 System.out.println(servATW.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));    
                             }
@@ -307,7 +345,7 @@ public class Client {
                             else if(whichcustomer.equalsIgnoreCase("OUT")){
                                 System.out.println(servOUT.cancelMovieTickets(ID, movieID, movieName, Numberoftickets));    
                             }
-                                                    
+                            
                         }
                         break;
                         case 4:{
