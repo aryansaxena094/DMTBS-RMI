@@ -205,9 +205,14 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     @Override
     public String bookMovieTicket(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException
     {
-        if(!movies.containsKey(movieName) && !(movies.get(movieName)).containsKey(movieID)){
-            serverlogwriter("Booking movie ticket:", "Customer:"+CustomerID + " : " + movieName + " : " + movieID, false);
-            return "MovieID/MovieName does not exist!";
+        
+        if(!movies.containsKey(movieName))
+        {
+            if(!movies.get(movieName).containsKey(movieID)){
+                serverlogwriter("Booking movie ticket:", "Customer:"+CustomerID + " : " + movieName + " : " + movieID, false);
+                return "MovieID does not exist!";
+            }
+            return "Movie Name does not exist!";
         }
         int totaltickets = (movies.get(movieName)).get(movieID);
         
@@ -223,7 +228,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         totaltickets = totaltickets - Numberoftickets;
         
         HashMap<String, Integer> moviesbookedbycustomer = customer.get(CustomerID);
-        moviesbookedbycustomer.put(movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
+        
+        
+        ///changes
+        moviesbookedbycustomer.put(movieName+":"+movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
         
         
         (movies.get(movieName)).put(movieID, totaltickets);
@@ -265,12 +273,13 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         }
         
         HashMap<String, Integer> customerBookings = customer.get(CustomerID);
-        if (!customerBookings.containsKey(movieID)) {
+
+        if (!customerBookings.containsKey(movieName+":"+movieID)) {
             serverlogwriter("CANCEL MOVIE TICKET", "No tickets found for the movie with ID " + movieID,false);
             return "No tickets found for the movie with ID " + movieID;
         }
         
-        if (customerBookings.get(movieID) < Numberoftickets) {
+        if (customerBookings.get(movieName+":"+movieID) < Numberoftickets) {
             serverlogwriter("CANCEL MOVIE TICKET", "Only " + customerBookings.get(movieID) + " tickets found for the movie with ID " + movieID,false);
             return "Only " + customerBookings.get(movieID) + " tickets found for the movie with ID " + movieID;
         }
@@ -286,7 +295,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             return "Movie with ID " + movieID + " not found.";
         }
         
-        customerBookings.put(movieID, customerBookings.get(movieID) - Numberoftickets);
+        customerBookings.put(movieName+":"+movieID, customerBookings.get(movieName+":"+movieID) - Numberoftickets);
         movieBookings.put(movieID, movieBookings.get(movieID) + Numberoftickets);
         
         serverlogwriter("INFO", Numberoftickets + " tickets has been cancelled for " + movieName + " with MovieID " + movieID,true);
@@ -295,7 +304,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         return Numberoftickets + " tickets has been cancelled for " + movieName + " with MovieID " + movieID;
     }
-    
     @Override
     public String verifyID(String ID) throws RemoteException{
         if(ID.length() < 8 || ID.charAt(3)!='A' &&  ID.charAt(3)!='C' && ID.charAt(3)!='a' && ID.charAt(3)!='c')
