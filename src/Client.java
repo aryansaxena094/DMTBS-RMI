@@ -50,8 +50,8 @@ public class Client {
         Scanner sc = new Scanner(System.in);
         String ID = "";
         int RMIportATW = 5005;
-        int RMIportVER = 5001;
-        int RMIportOUT = 5002;
+        int RMIportVER = 5002;
+        int RMIportOUT = 5001;
         
         //Connecting to Servers
         RMIs servATW = (RMIs) Naming.lookup("rmi://localhost:"+RMIportATW+"/ATW");

@@ -24,7 +24,7 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     
     //portfor RMI
-    static int RMIport = 5005;
+    static int RMIport = 5002;
     
     //own port
     //ATWATER PORTS
@@ -44,16 +44,16 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     
     protected ServVER() throws RemoteException {
         super();
-        admin.add("ATWA9499");
+        admin.add("VERA9499");
     }
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, IOException {
         Registry reg = LocateRegistry.createRegistry(RMIport);
-        reg.bind("ATW", new ServATW());
-        System.out.println("Atwater Server is running!");
+        reg.bind("VER", new ServVER());
+        System.out.println("Verdun Server is running!");
         
         try (//UDP Server OPEN PORT ALWAYS OPEN
-        DatagramSocket Socket = new DatagramSocket(ATW_ALONP)) 
+        DatagramSocket Socket = new DatagramSocket(VER_ALONP)) 
         {
             byte[] receivedata = new byte[1024];
             
@@ -370,21 +370,23 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     public static void listMovieServertoServer (String movieName, String serverrequest) throws RemoteException{
         String output = "";
         ArrayList<String> listallshows = new ArrayList<String>();
-        Map<String, Integer> tempMap = new HashMap<>(movies.get(movieName));
-        for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
-            listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
+        Map<String, Integer> tempMap = new HashMap<>(movies.getOrDefault(movieName,new HashMap<>()));
+        if(!tempMap.isEmpty())
+        {
+            for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
+                listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
+            }
         }
         output =  ServerName +" : "+ listallshows.toString();
-        
         boolean sendPacketStatus = false;
         try {
             byte[] senddata = new byte[1024];
             senddata = output.getBytes();
             InetAddress ip = InetAddress.getLocalHost();
-            DatagramSocket toserv = new DatagramSocket(ATW_DATA);
-            if(serverrequest.equalsIgnoreCase("OUT"))
+            DatagramSocket toserv = new DatagramSocket();
+            if(serverrequest.equalsIgnoreCase("ATW"))
             {
-                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, OUT_DATA);
+                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, ATW_DATA);
                 toserv.send(sendpacket);
                 sendPacketStatus = true;
             }
@@ -398,9 +400,10 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         } catch (Exception e) {
             sendPacketStatus = false;
         }
-        serverlogwriter("SEND PACKET SERVER TO SERVER(UDP)", output, sendPacketStatus);
+        finally{
+            serverlogwriter("SEND PACKET SERVER TO SERVER(UDP)", output, sendPacketStatus);
+        }
     }
-    
     
     //adding admin
     

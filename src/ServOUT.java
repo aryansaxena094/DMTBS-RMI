@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -24,7 +25,7 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     
     //portfor RMI
-    static int RMIport = 5005;
+    static int RMIport = 5001;
     
     //own port
     //ATWATER PORTS
@@ -49,11 +50,11 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
     
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, IOException {
         Registry reg = LocateRegistry.createRegistry(RMIport);
-        reg.bind("ATW", new ServATW());
-        System.out.println("Atwater Server is running!");
+        reg.bind("OUT", new ServOUT());
+        System.out.println("Outremont Server is running!");
         
         try (//UDP Server OPEN PORT ALWAYS OPEN
-        DatagramSocket Socket = new DatagramSocket(ATW_ALONP)) 
+        DatagramSocket Socket = new DatagramSocket(OUT_ALONP)) 
         {
             byte[] receivedata = new byte[1024];
             
@@ -61,16 +62,19 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
             while(true){
                 DatagramPacket receivePacket = new DatagramPacket(receivedata, receivedata.length);
                 Socket.receive(receivePacket);
-                String recieved = receivePacket.toString();
                 
+                String received = new String(receivePacket.getData(), 0, receivePacket.getLength(), StandardCharsets.UTF_8);
+                
+                System.out.println("Received "+received);
                 //sample recieved: LATWAVATAR
-                if(recieved.charAt(0)=='L' || recieved.charAt(0)=='l'){
-                    String curmoviename = recieved.substring(4);
-                    String requestfromserver = recieved.substring(1,4);
-                    
+                if(received.charAt(0)=='L' || received.charAt(0)=='l'){
+                    String curmoviename = received.substring(4);
+                    String requestfromserver = received.substring(1,4);
+                    System.out.println(requestfromserver);
+                    System.out.println(curmoviename);
                     listMovieServertoServer(curmoviename,requestfromserver);
                 }
-                else if(recieved.charAt(0)=='C' || recieved.charAt(0)=='c'){
+                else if(received.charAt(0)=='C' || received.charAt(0)=='c'){
                     //cancellation open  communication link
                 }
             }
@@ -351,11 +355,11 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
         calendar.setTime(currentdate);
         calendar.add(Calendar.DATE, 7);
         Date oneWeekFromNow = calendar.getTime();
-
+        
         System.out.println(date1);
         System.out.println(currentdate);
         System.out.println(oneWeekFromNow);
-
+        
         if (date1.before(currentdate) || date1.after(oneWeekFromNow)) {
             serverlogwriter("VERIFY MOVIE ID", "You can only access tickets for dates within the next 7 days from today.", false);
             return "You can only access tickets for dates within the next 7 days from today.";
@@ -370,21 +374,23 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
     public static void listMovieServertoServer (String movieName, String serverrequest) throws RemoteException{
         String output = "";
         ArrayList<String> listallshows = new ArrayList<String>();
-        Map<String, Integer> tempMap = new HashMap<>(movies.get(movieName));
-        for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
-            listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
+        Map<String, Integer> tempMap = new HashMap<>(movies.getOrDefault(movieName,new HashMap<>()));
+        if(!tempMap.isEmpty())
+        {
+            for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
+                listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
+            }
         }
         output =  ServerName +" : "+ listallshows.toString();
-        
         boolean sendPacketStatus = false;
         try {
             byte[] senddata = new byte[1024];
             senddata = output.getBytes();
             InetAddress ip = InetAddress.getLocalHost();
-            DatagramSocket toserv = new DatagramSocket(ATW_DATA);
-            if(serverrequest.equalsIgnoreCase("OUT"))
+            DatagramSocket toserv = new DatagramSocket();
+            if(serverrequest.equalsIgnoreCase("ATW"))
             {
-                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, OUT_DATA);
+                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, ATW_DATA);
                 toserv.send(sendpacket);
                 sendPacketStatus = true;
             }
@@ -398,7 +404,9 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
         } catch (Exception e) {
             sendPacketStatus = false;
         }
-        serverlogwriter("SEND PACKET SERVER TO SERVER(UDP)", output, sendPacketStatus);
+        finally{
+            serverlogwriter("SEND PACKET SERVER TO SERVER(UDP)", output, sendPacketStatus);
+        }
     }
     
     
@@ -426,7 +434,7 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
         serverlogwriter("addadmin", adminID, true);
         return "Admin has been successfully added";
     }
-
+    
     
     
     public static void print(){

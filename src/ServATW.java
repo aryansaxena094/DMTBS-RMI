@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -42,7 +43,8 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     static int VER_DATA = 4008;
     
     
-    protected ServATW() throws RemoteException {
+    protected ServATW() throws RemoteException 
+    {
         super();
         admin.add("ATWA9499");
     }
@@ -126,10 +128,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     }
     
     
-    
-    
-    
-    
     @Override
     public String listMovieShows(String movieName) throws RemoteException {
         
@@ -144,47 +142,34 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         
         //checking other servers
         try {
+            
+            DatagramSocket sendingrequesttoserv1 = new DatagramSocket();
+            
             String sendingrequest = "L"+"ATW"+movieName;
             byte[] senddata = new byte[1024];
-            senddata = sendingrequest.getBytes();
-            
             byte[] receivedataserv1 = new byte[1024];
-            byte[] receivedataserv2 = new byte[1024];
+            
+            senddata = sendingrequest.getBytes();
             
             InetAddress ip = InetAddress.getLocalHost();
             
-            //sending request to serv1
-            DatagramSocket sendingrequesttoserv1 = new DatagramSocket(ATW_DATA);
             DatagramPacket sendreqtorserv1 = new DatagramPacket(senddata, senddata.length, ip, OUT_ALONP);
-            sendingrequesttoserv1.send(sendreqtorserv1);
-            sendingrequesttoserv1.close();
             
-            //getting values from serv1
+            sendingrequesttoserv1.send(sendreqtorserv1);
+            
             DatagramSocket gettingdatafromserv1 = new DatagramSocket(ATW_DATA);
-            DatagramPacket packetfromserv1 =new DatagramPacket(receivedataserv1,receivedataserv1.length);
-            while(!packetfromserv1.toString().isEmpty()){
+            
+            DatagramPacket packetfromserv1 = null;
+            
+            String recvdata = "";
+            while(recvdata.isBlank()){
+                packetfromserv1 = new DatagramPacket(receivedataserv1, receivedataserv1.length);
                 gettingdatafromserv1.receive(packetfromserv1);
+                recvdata = new String(packetfromserv1.getData(), 0, packetfromserv1.getLength(), StandardCharsets.UTF_8);
             }
             gettingdatafromserv1.close();
-            
-            output = output + " "+ packetfromserv1.toString();
-            
-            //sending request to serv2
-            DatagramSocket sendingrequesttoserv2 = new DatagramSocket(VER_ALONP);
-            DatagramPacket sendreqtorserv2 = new DatagramPacket(senddata, senddata.length, ip, VER_ALONP);
-            sendingrequesttoserv2.send(sendreqtorserv2);
-            sendingrequesttoserv2.close();
-            
-            //getting values from serv1
-            DatagramSocket gettingdatafromserv2 = new DatagramSocket(ATW_DATA);
-            DatagramPacket packetfromserv2 =new DatagramPacket(receivedataserv2,receivedataserv2.length);
-            while(!packetfromserv2.toString().isEmpty()){
-                gettingdatafromserv2.receive(packetfromserv2);
-            }
-            gettingdatafromserv2.close();
-            
-            output = output + " "+ packetfromserv2.toString();
-            
+            System.out.println(recvdata);
+            output = output + " "+ recvdata;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -351,11 +336,11 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         calendar.setTime(currentdate);
         calendar.add(Calendar.DATE, 7);
         Date oneWeekFromNow = calendar.getTime();
-
+        
         System.out.println(date1);
         System.out.println(currentdate);
         System.out.println(oneWeekFromNow);
-
+        
         if (date1.before(currentdate) || date1.after(oneWeekFromNow)) {
             serverlogwriter("VERIFY MOVIE ID", "You can only access tickets for dates within the next 7 days from today.", false);
             return "You can only access tickets for dates within the next 7 days from today.";
@@ -370,21 +355,23 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     public static void listMovieServertoServer (String movieName, String serverrequest) throws RemoteException{
         String output = "";
         ArrayList<String> listallshows = new ArrayList<String>();
-        Map<String, Integer> tempMap = new HashMap<>(movies.get(movieName));
-        for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
-            listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
+        Map<String, Integer> tempMap = new HashMap<>(movies.getOrDefault(movieName,new HashMap<>()));
+        if(!tempMap.isEmpty())
+        {
+            for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
+                listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
+            }
         }
         output =  ServerName +" : "+ listallshows.toString();
-        
         boolean sendPacketStatus = false;
         try {
             byte[] senddata = new byte[1024];
             senddata = output.getBytes();
             InetAddress ip = InetAddress.getLocalHost();
-            DatagramSocket toserv = new DatagramSocket(ATW_DATA);
-            if(serverrequest.equalsIgnoreCase("OUT"))
+            DatagramSocket toserv = new DatagramSocket();
+            if(serverrequest.equalsIgnoreCase("ATW"))
             {
-                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, OUT_DATA);
+                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, ATW_DATA);
                 toserv.send(sendpacket);
                 sendPacketStatus = true;
             }
@@ -398,9 +385,10 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         } catch (Exception e) {
             sendPacketStatus = false;
         }
-        serverlogwriter("SEND PACKET SERVER TO SERVER(UDP)", output, sendPacketStatus);
+        finally{
+            serverlogwriter("SEND PACKET SERVER TO SERVER(UDP)", output, sendPacketStatus);
+        }
     }
-    
     
     //adding admin
     
@@ -426,7 +414,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         serverlogwriter("addadmin", adminID, true);
         return "Admin has been successfully added";
     }
-
+    
     
     
     public static void print(){
