@@ -24,6 +24,7 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
     private static HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     
+    private static HashMap<String, ArrayList<String>> foreigncustomer = new HashMap<String, ArrayList<String>>();
     //portfor RMI
     static int RMIport = 5001;
     
@@ -230,6 +231,26 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
             return "Lesser slots availabe, you can only book "+totaltickets+" for this show";
         }
         
+        if(foreigncustomer.containsKey(CustomerID)){
+            ArrayList<String> bookedbyfc = foreigncustomer.get(CustomerID);
+            if(bookedbyfc.size()>=3){
+                return "Foreign Customers "+CustomerID+ "are only allowed to book 3 tickets this server: "+ServerName;
+            }
+            else
+            {
+                if(!bookedbyfc.contains(movieName+":"+movieID)){
+                    bookedbyfc.add(movieName+movieID);
+                }
+            }
+        }
+        else
+        {
+            ArrayList<String> toadd = new ArrayList<>();
+            toadd.add(movieName+":"+movieID);
+            foreigncustomer.put(CustomerID, toadd);
+
+        }
+
         if (!customer.containsKey(CustomerID)) {
             customer.put(CustomerID, new HashMap<>());
         }
@@ -237,7 +258,6 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
         totaltickets = totaltickets - Numberoftickets;
         
         HashMap<String, Integer> moviesbookedbycustomer = customer.get(CustomerID);
-        
         
         ///changes
         moviesbookedbycustomer.put(movieName+":"+movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
@@ -250,8 +270,6 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
         serverlogwriter("Booking movie ticket:", "Customer:"+CustomerID + " : " + movieName + " : " + movieID, true);
         return Numberoftickets+ " Tickets have been booked to "+movieID+" show of "+movieName;
     }
-    
-    
     
     @Override
     public String getBookingSchedule(String CustomerID) throws RemoteException {

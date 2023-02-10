@@ -24,6 +24,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     private static HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
     
+    private static HashMap<String, ArrayList<String>> foreigncustomer = new HashMap<String, ArrayList<String>>();
     //portfor RMI
     static int RMIport = 5005;
     
@@ -221,6 +222,26 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             return "Lesser slots availabe, you can only book "+totaltickets+" for this show";
         }
         
+        if(foreigncustomer.containsKey(CustomerID)){
+            ArrayList<String> bookedbyfc = foreigncustomer.get(CustomerID);
+            if(bookedbyfc.size()>=3){
+                return "Foreign Customers "+CustomerID+ "are only allowed to book 3 tickets this server: "+ServerName;
+            }
+            else
+            {
+                if(!bookedbyfc.contains(movieName+":"+movieID)){
+                    bookedbyfc.add(movieName+movieID);
+                }
+            }
+        }
+        else
+        {
+            ArrayList<String> toadd = new ArrayList<>();
+            toadd.add(movieName+":"+movieID);
+            foreigncustomer.put(CustomerID, toadd);
+            
+        }
+        
         if (!customer.containsKey(CustomerID)) {
             customer.put(CustomerID, new HashMap<>());
         }
@@ -228,7 +249,6 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         totaltickets = totaltickets - Numberoftickets;
         
         HashMap<String, Integer> moviesbookedbycustomer = customer.get(CustomerID);
-        
         
         ///changes
         moviesbookedbycustomer.put(movieName+":"+movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
@@ -273,7 +293,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         }
         
         HashMap<String, Integer> customerBookings = customer.get(CustomerID);
-
+        
         if (!customerBookings.containsKey(movieName+":"+movieID)) {
             serverlogwriter("CANCEL MOVIE TICKET", "No tickets found for the movie with ID " + movieID,false);
             return "No tickets found for the movie with ID " + movieID;
@@ -370,13 +390,17 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         System.out.println(currentdate);
         System.out.println(oneWeekFromNow);
         
-        if (date1.before(currentdate) || date1.after(oneWeekFromNow)) {
+        if (date1.after(currentdate) && date1.before(oneWeekFromNow)) {
+            serverlogwriter("VERIFY MOVIE ID", "Valid movie ID: " + movieID, true);
+            return "Valid";
+        }
+        else
+        {
             serverlogwriter("VERIFY MOVIE ID", "You can only access tickets for dates within the next 7 days from today.", false);
             return "You can only access tickets for dates within the next 7 days from today.";
         }
         
-        serverlogwriter("VERIFY MOVIE ID", "Valid movie ID: " + movieID, true);
-        return "Valid";
+        
     }
     
     
