@@ -63,16 +63,16 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             while(true){
                 DatagramPacket receivePacket = new DatagramPacket(receivedata, receivedata.length);
                 Socket.receive(receivePacket);
-                String recieved = receivePacket.toString();
+                String received = new String(receivePacket.getData(), 0, receivePacket.getLength(), StandardCharsets.UTF_8);
                 
                 //sample recieved: LATWAVATAR
-                if(recieved.charAt(0)=='L' || recieved.charAt(0)=='l'){
-                    String curmoviename = recieved.substring(4);
-                    String requestfromserver = recieved.substring(1,4);
+                if(received.charAt(0)=='L' || received.charAt(0)=='l'){
+                    String curmoviename = received.substring(4);
+                    String requestfromserver = received.substring(1,4);
                     
                     listMovieServertoServer(curmoviename,requestfromserver);
                 }
-                else if(recieved.charAt(0)=='C' || recieved.charAt(0)=='c'){
+                else if(received.charAt(0)=='C' || received.charAt(0)=='c'){
                     //cancellation open  communication link
                 }
             }
@@ -132,7 +132,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
     public String listMovieShows(String movieName) throws RemoteException {
         
         ArrayList<String> listallshows = new ArrayList<String>();
-        Map<String, Integer> tempMap = new HashMap<>(movies.get(movieName));
+        Map<String, Integer> tempMap = new HashMap<>(movies.getOrDefault(movieName,new HashMap<>()));
         String output = "";
         
         //for own server
@@ -140,19 +140,15 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
         }
         
+        String sendingrequest = "L"+"ATW"+movieName;
+        byte[] senddata = new byte[1024];
+        senddata = sendingrequest.getBytes();
+        
         //checking other servers
         try {
-            
-            DatagramSocket sendingrequesttoserv1 = new DatagramSocket();
-            
-            String sendingrequest = "L"+"ATW"+movieName;
-            byte[] senddata = new byte[1024];
-            byte[] receivedataserv1 = new byte[1024];
-            
-            senddata = sendingrequest.getBytes();
-            
             InetAddress ip = InetAddress.getLocalHost();
-            
+            DatagramSocket sendingrequesttoserv1 = new DatagramSocket();
+            byte[] receivedataserv1 = new byte[1024];
             DatagramPacket sendreqtorserv1 = new DatagramPacket(senddata, senddata.length, ip, OUT_ALONP);
             
             sendingrequesttoserv1.send(sendreqtorserv1);
@@ -168,10 +164,35 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
                 recvdata = new String(packetfromserv1.getData(), 0, packetfromserv1.getLength(), StandardCharsets.UTF_8);
             }
             gettingdatafromserv1.close();
-            System.out.println(recvdata);
             output = output + " "+ recvdata;
+            sendingrequesttoserv1.close();
         }
         catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            DatagramSocket sendingrequesttoserv2 = new DatagramSocket();
+            byte[] receivedataserv2 = new byte[1024];
+            DatagramPacket sendreqtorserv2 = new DatagramPacket(senddata, senddata.length, ip, VER_ALONP);
+            
+            sendingrequesttoserv2.send(sendreqtorserv2);
+            
+            DatagramSocket gettingdatafromserv2 = new DatagramSocket(ATW_DATA);
+            
+            DatagramPacket packetfromserv2 = null;
+            
+            String recvdata = "";
+            while(recvdata.isBlank()){
+                packetfromserv2 = new DatagramPacket(receivedataserv2, receivedataserv2.length);
+                gettingdatafromserv2.receive(packetfromserv2);
+                recvdata = new String(packetfromserv2.getData(), 0, packetfromserv2.getLength(), StandardCharsets.UTF_8);
+            }
+            gettingdatafromserv2.close();
+            output = output + " "+ recvdata;
+            sendingrequesttoserv2.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         
@@ -369,9 +390,9 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
             senddata = output.getBytes();
             InetAddress ip = InetAddress.getLocalHost();
             DatagramSocket toserv = new DatagramSocket();
-            if(serverrequest.equalsIgnoreCase("ATW"))
+            if(serverrequest.equalsIgnoreCase("OUT"))
             {
-                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, ATW_DATA);
+                DatagramPacket sendpacket = new DatagramPacket(senddata, senddata.length, ip, OUT_DATA);
                 toserv.send(sendpacket);
                 sendPacketStatus = true;
             }
@@ -430,7 +451,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         Date date = new Date();
         String dateStr = dateFormat.format(date);
         String timeStr = timeFormat.format(date);
-        String logFilePath = "/Users/aryansaxena/Desktop/DSDA1/DMTS/logs/Atwater" + dateStr + ".txt";
+        String logFilePath = "/Users/aryansaxena/Desktop/DSDA1/DMTS/logs/Atwater/ATW.txt";
         File logFile = new File(logFilePath);
         String logMessage = "DATE: "+ dateStr + " | " + "TIME: " + timeStr + " | " + "REQUEST TYPE: " + requesttype + " | " + ID + " | " + "STATUS: "+(status ? "success" : "failure");
         try {

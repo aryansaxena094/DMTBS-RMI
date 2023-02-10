@@ -363,10 +363,6 @@ public class Client {
             }   
         }
         
-
-
-
-
         //end code
         conclusion();
         sc.close();
