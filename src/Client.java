@@ -1,3 +1,8 @@
+//Distributed Movie Ticket Booking System Using Java RMI
+//Assignment 1
+//Submitted by: Aryan Saxena
+//Student ID: 40233170
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Client {
-    
     public static void intro()
     {
         System.out.println("***********************************************************************************************************");
@@ -21,7 +25,6 @@ public class Client {
         System.out.println("***********************************************************************************************************");
         
     }
-    
     public static void conclusion(){
         System.out.println("*******************************************************************************************************************");
         System.out.println("*******************************************************************************************************************");
@@ -29,7 +32,6 @@ public class Client {
         System.out.println("*******************************************************************************************************************");
         System.out.println("*******************************************************************************************************************");
     }
-    
     public static void adminmenu(String ID){
         System.out.println("\r\nHey Admin: "+ID);
         System.out.println("Please select your actions: ");
@@ -40,7 +42,6 @@ public class Client {
         System.out.println("5. Use Different ID");
         System.out.println("6. EXIT \r\n");
     }
-    
     public static void customermenu(String ID){
         System.out.println("\r\nHey Customer: "+ID);
         System.out.println("1. Book Movie Ticket");
@@ -62,7 +63,6 @@ public class Client {
         RMIs servATW = (RMIs) Naming.lookup("rmi://localhost:"+RMIportATW+"/ATW");
         RMIs servVER = (RMIs) Naming.lookup("rmi://localhost:"+RMIportVER+"/VER");
         RMIs servOUT = (RMIs) Naming.lookup("rmi://localhost:"+RMIportOUT+"/OUT");
-        
         
         program:while(true){
             String verification = "This entered ID is invalid";
@@ -436,7 +436,6 @@ public class Client {
         conclusion();
         sc.close();
     }
-
 
     public static void clientlogwrtier(String requesttype, String ID, boolean status){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

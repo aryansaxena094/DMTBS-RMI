@@ -1,3 +1,8 @@
+//Distributed Movie Ticket Booking System Using Java RMI
+//Assignment 1
+//Submitted by: Aryan Saxena
+//Student ID: 40233170
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

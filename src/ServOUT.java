@@ -1,3 +1,8 @@
+//Distributed Movie Ticket Booking System Using Java RMI
+//Assignment 1
+//Submitted by: Aryan Saxena
+//Student ID: 40233170
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -55,13 +60,10 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
                 DatagramPacket receivePacket = new DatagramPacket(receivedata, receivedata.length);
                 Socket.receive(receivePacket);
                 String received = new String(receivePacket.getData(), 0, receivePacket.getLength(), StandardCharsets.UTF_8);
-                System.out.println("Received "+received);
                 //sample recieved: LATWAVATAR
                 if(received.charAt(0)=='L' || received.charAt(0)=='l'){
                     String curmoviename = received.substring(4);
                     String requestfromserver = received.substring(1,4);
-                    System.out.println(requestfromserver);
-                    System.out.println(curmoviename);
                     listMovieServertoServer(curmoviename,requestfromserver);
                 }
             }
@@ -106,8 +108,6 @@ public class ServOUT extends UnicastRemoteObject implements RMIs {
             serverlogwriter("DELETING MOVIE SLOT:", "Movie Name not found for movie name: " + movieName, false);
             return "Movie name not found: " + movieName;
         }
-        
-        //if customers have booked scenario
     }
 
     @Override
