@@ -1,3 +1,8 @@
+//Distributed Movie Ticket Booking System Using Java RMI
+//Assignment 1
+//Submitted by: Aryan Saxena
+//Student ID: 40233170
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -330,11 +335,6 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         calendar.setTime(currentdate);
         calendar.add(Calendar.DATE, 7);
         Date oneWeekFromNow = calendar.getTime();
-        
-        System.out.println(date1);
-        System.out.println(currentdate);
-        System.out.println(oneWeekFromNow);
-        
         if (date1.before(currentdate) || date1.after(oneWeekFromNow)) {
             serverlogwriter("VERIFY MOVIE ID", "You can only access tickets for dates within the next 7 days from today.", false);
             return "You can only access tickets for dates within the next 7 days from today.";
