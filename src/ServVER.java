@@ -15,34 +15,26 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
 public class ServVER extends UnicastRemoteObject implements RMIs {
     private static String ServerName = "Verdun";
-    
     private static ArrayList<String> admin = new ArrayList<String>();
-    
     private static HashMap<String, HashMap<String, Integer>> movies = new HashMap<>();
     private static HashMap<String, HashMap<String, Integer>> customer = new HashMap<>();
-    
     private static HashMap<String, ArrayList<String>> foreigncustomer = new HashMap<String, ArrayList<String>>();
     //portfor RMI
     static int RMIport = 5002;
     
-    //own port
     //ATWATER PORTS
     static int ATW_ALONP = 4003;
     static int ATW_DATA = 4004;
     
-    //server1 ports
     //OUTREMONT PORTS
     static int OUT_ALONP = 4005;
     static int OUT_DATA = 4006;
     
-    //datafrom server2 ports
     //VERDUN PORTS
     static int VER_ALONP = 4007;
     static int VER_DATA = 4008;
-    
     
     protected ServVER() throws RemoteException {
         super();
@@ -53,28 +45,20 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         Registry reg = LocateRegistry.createRegistry(RMIport);
         reg.bind("VER", new ServVER());
         System.out.println("Verdun Server is running!");
-        
         try (//UDP Server OPEN PORT ALWAYS OPEN
         DatagramSocket Socket = new DatagramSocket(VER_ALONP)) 
         {
             byte[] receivedata = new byte[1024];
-            
             //Keeping UDP Port Open for Recieving
             while(true){
                 DatagramPacket receivePacket = new DatagramPacket(receivedata, receivedata.length);
                 Socket.receive(receivePacket);
-                
                 String received = new String(receivePacket.getData(), 0, receivePacket.getLength(), StandardCharsets.UTF_8);
-                
                 //sample recieved: LATWAVATAR
                 if(received.charAt(0)=='L' || received.charAt(0)=='l'){
                     String curmoviename = received.substring(4);
                     String requestfromserver = received.substring(1,4);
-                    
                     listMovieServertoServer(curmoviename,requestfromserver);
-                }
-                else if(received.charAt(0)=='C' || received.charAt(0)=='c'){
-                    //cancellation open  communication link
                 }
             }
         }
@@ -82,7 +66,6 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     
     @Override
     public String addMovieSlots(String movieID, String movieName, int bookingcapacity) throws RemoteException {
-        
         boolean movieExists = movies.containsKey(movieName);
         if (movieExists) {
             HashMap<String, Integer> movieCapacity = movies.get(movieName);
@@ -98,22 +81,17 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             movieCapacity.put(movieID, bookingcapacity);
             movies.put(movieName, movieCapacity);
         }
-        print();
         serverlogwriter("ADDING MOVIE SLOT: ", movieName + " : " + movieID + " with " + bookingcapacity + " capacity", true);
         return movieName+" with MovieID "+ movieID +" has been created with "+bookingcapacity + " capacity";
     }
     
     @Override
     public String removeMovieSlots(String movieID, String movieName) throws RemoteException {
-        
         boolean movieexists = movies.containsKey(movieName);
         if(movieexists==true){
             boolean movieIDexists = (movies.get(movieName)).containsKey(movieID);
             if(movieIDexists==true){
                 (movies.get(movieName)).remove(movieID);
-                
-                print();
-                
                 serverlogwriter("DELETING MOVIE SLOT:", movieName + " : " + movieID, true);
                 return movieName+" with MovieID "+movieID +" has been removed";
             } else {
@@ -124,45 +102,29 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             serverlogwriter("DELETING MOVIE SLOT:", "Movie Name not found for movie name: " + movieName, false);
             return "Movie name not found: " + movieName;
         }
-        
-        //if customers have booked scenario
     }
-    
-    
-    
-    
-    
-    
+
     @Override
     public String listMovieShows(String movieName) throws RemoteException {
-        
         ArrayList<String> listallshows = new ArrayList<String>();
         Map<String, Integer> tempMap = new HashMap<>(movies.getOrDefault(movieName,new HashMap<>()));
         String output = "";
-        
         //for own server
         for (Map.Entry<String, Integer> entry : tempMap.entrySet()) {
             listallshows.add(entry.getKey() + " with " + entry.getValue() + " capacity");
         }
-        
         String sendingrequest = "L"+"VER"+movieName;
-        //
         byte[] senddata = new byte[1024];
         senddata = sendingrequest.getBytes();
-        
         //checking other servers
         try {
             InetAddress ip = InetAddress.getLocalHost();
             DatagramSocket sendingrequesttoserv1 = new DatagramSocket();
             byte[] receivedataserv1 = new byte[1024];
             DatagramPacket sendreqtorserv1 = new DatagramPacket(senddata, senddata.length, ip, OUT_ALONP);
-            
             sendingrequesttoserv1.send(sendreqtorserv1);
-            
             DatagramSocket gettingdatafromserv1 = new DatagramSocket(VER_DATA);
-            
             DatagramPacket packetfromserv1 = null;
-            
             String recvdata = "";
             while(recvdata.isBlank()){
                 packetfromserv1 = new DatagramPacket(receivedataserv1, receivedataserv1.length);
@@ -182,13 +144,9 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             DatagramSocket sendingrequesttoserv2 = new DatagramSocket();
             byte[] receivedataserv2 = new byte[1024];
             DatagramPacket sendreqtorserv2 = new DatagramPacket(senddata, senddata.length, ip, ATW_ALONP);
-            
             sendingrequesttoserv2.send(sendreqtorserv2);
-            
             DatagramSocket gettingdatafromserv2 = new DatagramSocket(VER_DATA);
-            
             DatagramPacket packetfromserv2 = null;
-            
             String recvdata = "";
             while(recvdata.isBlank()){
                 packetfromserv2 = new DatagramPacket(receivedataserv2, receivedataserv2.length);
@@ -201,17 +159,14 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
         serverlogwriter("LISTING SHOWS:", movieName, true);
         return ServerName + " : " + listallshows.toString() + " " + output;
     }
-    
     
     //Customer End
     @Override
     public String bookMovieTicket(String CustomerID, String movieID, String movieName, int Numberoftickets) throws RemoteException
     {
-        
         if(!movies.containsKey(movieName))
         {
             if(!movies.get(movieName).containsKey(movieID)){
@@ -221,12 +176,12 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             return "Movie Name does not exist!";
         }
         int totaltickets = (movies.get(movieName)).get(movieID);
-        
+
         if(Numberoftickets>totaltickets){
             serverlogwriter("Booking movie ticket:", "Customer:"+CustomerID + " : " + movieName + " : " + movieID, false);
             return "Lesser slots availabe, you can only book "+totaltickets+" for this show";
         }
-        
+
         if(foreigncustomer.containsKey(CustomerID)){
             ArrayList<String> bookedbyfc = foreigncustomer.get(CustomerID);
             if(bookedbyfc.size()>=3){
@@ -252,17 +207,9 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         }
         
         totaltickets = totaltickets - Numberoftickets;
-        
         HashMap<String, Integer> moviesbookedbycustomer = customer.get(CustomerID);
-        
-        ///changes
         moviesbookedbycustomer.put(movieName+":"+movieID, moviesbookedbycustomer.getOrDefault(movieID, 0) + Numberoftickets);
-        
-        
         (movies.get(movieName)).put(movieID, totaltickets);
-        
-        print();
-        
         serverlogwriter("Booking movie ticket:", "Customer:"+CustomerID + " : " + movieName + " : " + movieID, true);
         return Numberoftickets+ " Tickets have been booked to "+movieID+" show of "+movieName;
     }
@@ -276,16 +223,11 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             serverlogwriter("GETTING BOOKING SCHEDULE:", "No shows booked in "+ServerName, false);
             return "No shows booked in "+ServerName;
         }
-        
         HashMap<String, Integer> customerBookings = customer.get(CustomerID);
         ArrayList<String> allbookedshows = new ArrayList<>();
-        
         for (Map.Entry<String, Integer> booking : customerBookings.entrySet()) {
             allbookedshows.add(booking.getValue() + " tickets for " + booking.getKey());
         }
-        
-        print();
-        
         serverlogwriter("GETTING BOOKING SCHEDULE FOR:", CustomerID, true);
         return allbookedshows.toString();
     }
@@ -324,9 +266,6 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         movieBookings.put(movieID, movieBookings.get(movieID) + Numberoftickets);
         
         serverlogwriter("INFO", Numberoftickets + " tickets has been cancelled for " + movieName + " with MovieID " + movieID,true);
-        
-        print();
-        
         return Numberoftickets + " tickets has been cancelled for " + movieName + " with MovieID " + movieID;
     }
     
@@ -405,7 +344,6 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         return "Valid";
     }
     
-    
     //UDP
     public static void listMovieServertoServer (String movieName, String serverrequest) throws RemoteException{
         String output = "";
@@ -446,7 +384,6 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
     }
     
     //adding admin
-    
     public String addadmin(String adminID) throws RemoteException{
         if(adminID.length() < 8 || adminID.charAt(3)!='A'  && adminID.charAt(3)!='a')
         {
@@ -469,15 +406,6 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
         serverlogwriter("addadmin", adminID, true);
         return "Admin has been successfully added";
     }
-    
-    
-    
-    public static void print(){
-        System.out.println(ServerName+" Hashmaps");
-        System.out.println("Movies Hashmap: "+movies);
-        System.out.println("Customer Hashmap: "+customer);
-    }
-    
     
     public static void serverlogwriter(String requesttype, String ID, boolean status){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -506,5 +434,4 @@ public class ServVER extends UnicastRemoteObject implements RMIs {
             System.out.println("Error writing to log file: " + e.getMessage());
         }
     }
-    
 }
