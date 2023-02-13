@@ -407,7 +407,7 @@ public class ServATW extends UnicastRemoteObject implements RMIs {
         Date date = new Date();
         String dateStr = dateFormat.format(date);
         String timeStr = timeFormat.format(date);
-        String logFilePath = "/Users/aryansaxena/Desktop/DSDA1/DMTS/logs/Atwater/ATW.txt";
+        String logFilePath = "/Users/aryansaxena/Desktop/DSD/DSDA1/DMTBS/logs/Atwater/ATW.txt";
         File logFile = new File(logFilePath);
         String logMessage = "DATE: "+ dateStr + " | " + "TIME: " + timeStr + " | " + "REQUEST TYPE: " + requesttype + " | " + ID + " | " + "STATUS: "+(status ? "success" : "failure");
         try {

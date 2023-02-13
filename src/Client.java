@@ -171,10 +171,7 @@ public class Client {
                             String whichadmin = ID.substring(0,3);
                             
                             while(true)
-                            {
-                                System.out.println("Enter MovieID: ");
-                                movieID = sc.nextLine();
-                                
+                            {   
                                 String movieidverification = "";
                                 while(!movieidverification.equalsIgnoreCase("Valid")){
                                     System.out.println(movieidverification);
@@ -375,7 +372,6 @@ public class Client {
                             String movieidverification = "";
 
                             while(!movieidverification.equalsIgnoreCase("Valid")){
-
                                 System.out.println(movieidverification);
                                 System.out.println("MovieID: ");
                                 movieID = sc.nextLine();
@@ -438,7 +434,7 @@ public class Client {
         Date date = new Date();
         String dateStr = dateFormat.format(date);
         String timeStr = timeFormat.format(date);
-        String logFilePath = "/Users/aryansaxena/Desktop/DSDA1/DMTS/logs/ClientSide/"+dateStr+".txt";
+        String logFilePath = "/Users/aryansaxena/Desktop/DSD/DSDA1/DMTBS/logs/ClientSide"+dateStr+".txt";
         File logFile = new File(logFilePath);
         String logMessage = "DATE: "+ dateStr + " | " + "TIME: " + timeStr + " | " + "REQUEST TYPE: " + requesttype + " | " + ID + " | " + "STATUS: "+(status ? "success" : "failure");
         try {
