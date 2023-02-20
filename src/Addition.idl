@@ -1,0 +1,5 @@
+ module Additionapp{
+    interface Addition{
+        long add()
+    }
+};
